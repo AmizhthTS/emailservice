@@ -1,0 +1,73 @@
+server:
+  port: ${appPort:8096}
+
+# Spring MVC actuator endpoints available via /admin/info, /admin/health, ...
+server.servlet-path: /
+management.context-path: /admin
+
+# http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-endpoints
+endpoints:
+  enabled: false
+  info:
+    enabled: true
+  health:
+    enabled: true
+  metrics:
+    enabled: true
+
+info:
+  app:
+    name: emailservice
+  build:
+    version: V1
+
+spring:
+  jpa:
+    database: POSTGRESQL
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+  mail:
+   host: smtp.gmail.com
+   port: 587
+   username: antony.j@amizhth.com
+   password: lzfgjzprdghsxise
+   properties:
+    mail:
+     smtp:
+      auth: true
+      starttls:
+       enable: true
+      
+  http:
+    multipart:
+      enabled: true
+ 
+
+# Bring Postgres docker images using: 
+# docker run -d -p 5532:5432 -e DB_NAME=db_dvdrental -e DB_USER=user_dvdrental -e DB_PASSWD=changeit asimio/db_dvdrental:latest
+# 172.16.69.133 = Fusion VM Docker host, 5532 Docker host port mapped to container port
+
+multitenancy:
+  dvdrental:
+    dataSources:
+      -
+        tenantId: public
+        url: jdbc:postgresql://amizhthdev.c41mzmwqiqbp.ap-south-1.rds.amazonaws.com:5432/varuvaai?stringtype=unspecified&currentSchema=emailservice
+        username: amizhthdev
+        password: amizhthdevdb123
+        driverClassName: org.postgresql.Driver
+
+
+logging:
+  file:
+    path: /opt/emailservice/logs
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    org.springframework.web: INFO
+    com.amizhth: INFO
+    org.hibernate: ERROR
+    org.springframework.web.filter.CommonsRequestLoggingFilter: INFO
