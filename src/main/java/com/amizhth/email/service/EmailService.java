@@ -21,7 +21,7 @@ public class EmailService {
 	@Value("${spring.mail.username}")
 	private String sender;
 	
-	public String sendSimpleMail(EmailDetails details)
+	public EmailDetails sendSimpleMail(EmailDetails details)
     {
  
         // Try block to check for exceptions
@@ -40,16 +40,14 @@ public class EmailService {
             // Sending the mail
             javaMailSender.send(mailMessage);
             details.setStatus("Success");
-            details.seterrorCode("");
-            details.seterrorDescription("");
           
         }
  
         // Catch block to handle the exceptions
         catch (Exception e) {
         	details.setStatus("Failed");
-            details.seterrorCode("500");
-            details.seterrorDescription(e.getMessage());
+            details.setErrorcode("501");
+            details.setErrormessage(e.getMessage());
         }
         return details;
     }

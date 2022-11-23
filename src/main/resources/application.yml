@@ -1,5 +1,5 @@
 server:
-  port: ${appPort:8096}
+  port: ${appPort:8093}
 
 # Spring MVC actuator endpoints available via /admin/info, /admin/health, ...
 server.servlet-path: /
