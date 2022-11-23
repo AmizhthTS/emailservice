@@ -16,10 +16,12 @@ public class EmailController {
 	private EmailService emailService;
 
 	@PostMapping(value = "/sendMail", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public String sendMail(@RequestBody EmailDetails details) {
+	public EmailDetails sendMail(@RequestBody EmailDetails details) {
 		
-		
-		String status = emailService.sendSimpleMail(details);
+		//To Do
+		logrequest(details.getMsgBody(),details.getRecipient(),details.getSubject());
+		EmailDetails status = emailService.sendSimpleMail(details);
+		logresponse(details.getStatus(),details.geterrorCode(),details.geterrorMessage());
 		return status;
 	}
 

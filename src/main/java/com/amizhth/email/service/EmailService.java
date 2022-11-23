@@ -39,13 +39,19 @@ public class EmailService {
  
             // Sending the mail
             javaMailSender.send(mailMessage);
-            return "Mail Sent Successfully...";
+            details.setStatus("Success");
+            details.seterrorCode("");
+            details.seterrorDescription("");
+          
         }
  
         // Catch block to handle the exceptions
         catch (Exception e) {
-            return "Error while Sending Mail";
+        	details.setStatus("Failed");
+            details.seterrorCode("500");
+            details.seterrorDescription(e.getMessage());
         }
+        return details;
     }
  
     // Method 2
