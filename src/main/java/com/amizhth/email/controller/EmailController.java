@@ -30,9 +30,8 @@ public class EmailController {
 		try {
 			//
 			int id = mailsave(details);
-			System.out.println(id);
 			emailDetailsModel = emailDetailsDao.findById(id);
-			emailDetailsModel.setModifiedby(TenantContext.getCurrentUser());
+			emailDetailsModel.setModifiedby(details.getRequestedBy());
 			emailDetailsModel.setModifiedtime(LocalDateTime.now());
 			try {
 				emailDetails = emailService.sendSimpleMail(details);
@@ -55,7 +54,7 @@ public class EmailController {
 			emailDetailsModel.setErrorcode("500");
 			emailDetailsModel.setErrormessage(e.getMessage());
 			emailDetailsModel.setStatus(emailDetails.getStatus());
-	       emailDetailsDao.save(emailDetailsModel);
+	        emailDetailsDao.save(emailDetailsModel);
 			return emailDetails;
 		}
 	}
@@ -72,7 +71,7 @@ public class EmailController {
 		EmailDetailsModel emailDetailsModel = new EmailDetailsModel();
 			emailDetailsModel = EmailDetailsModel.builder().active(1).attachment(details.getAttachment())
 					.body(details.getMsgBody()).recipient(details.getRecipient()).subject(details.getSubject())
-					.createdtime(LocalDateTime.now()).createdby(TenantContext.getCurrentUser()).build();
+					.createdtime(LocalDateTime.now()).createdby(details.getRequestedBy()).build();
 			emailDetailsDao.save(emailDetailsModel);
 
 			details.setStatus("Success");

@@ -23,4 +23,5 @@ public class EmailDetails {
     private String status;
 	private String errorcode;
 	private String errormessage;
+	private String requestedBy;
 }

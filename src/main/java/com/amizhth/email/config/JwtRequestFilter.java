@@ -33,6 +33,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
+		
+		String tenantID = request.getHeader("X-TenantID");
+		TenantContext.setCurrentTenant(tenantID);
+		
 		chain.doFilter(request, response);
 	}
 
