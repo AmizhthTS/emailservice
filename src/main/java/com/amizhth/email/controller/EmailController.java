@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.amizhth.email.dao.EmailDetailsDao;
 import com.amizhth.email.dto.EmailDetails;
 import com.amizhth.email.entitymodel.EmailDetailsModel;
-import com.amizhth.email.multitenancy.TenantContext;
 import com.amizhth.email.service.EmailService;
 
 @RestController
@@ -24,6 +23,7 @@ public class EmailController {
 
 	@Autowired
 	private EmailDetailsDao emailDetailsDao;
+
 
 	@PostMapping(value = "/sendMail", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public EmailDetails sendMail(@RequestBody EmailDetails details, HttpServletRequest request) {
@@ -45,7 +45,7 @@ public class EmailController {
 				emailDetailsModel.setErrorcode("500");
 				emailDetailsModel.setErrormessage(e.getMessage());
 			}
-			 emailDetailsDao.save(emailDetailsModel);
+			emailDetailsDao.save(emailDetailsModel);
 			details.setStatus(emailDetails.getStatus());
 			return details;
 		} catch (Exception e) {
@@ -56,10 +56,10 @@ public class EmailController {
 			emailDetailsModel.setErrorcode("500");
 			emailDetailsModel.setErrormessage(e.getMessage());
 			emailDetailsModel.setStatus(emailDetails.getStatus());
-	        emailDetailsDao.save(emailDetailsModel);
+			emailDetailsDao.save(emailDetailsModel);
 			return emailDetails;
 		}
-	}
+	} 
 
 	// Sending email with attachment
 	@PostMapping("/sendMailWithAttachment")
@@ -71,13 +71,14 @@ public class EmailController {
 
 	public int mailsave(EmailDetails details) throws Exception {
 		EmailDetailsModel emailDetailsModel = new EmailDetailsModel();
-			emailDetailsModel = EmailDetailsModel.builder().active(1).attachment(details.getAttachment())
-					.body(details.getMsgBody()).recipient(details.getRecipient()).subject(details.getSubject())
-					.createdtime(LocalDateTime.now()).createdby(details.getRequestedBy()).build();
-			emailDetailsDao.save(emailDetailsModel);
-
-			details.setStatus("Success");
-			return emailDetailsModel.getId();
+		emailDetailsModel = EmailDetailsModel.builder().id(0).active(1).attachment(details.getAttachment())
+				.body(details.getMsgBody()).recipient(details.getRecipient()).subject(details.getSubject())
+				.createdtime(LocalDateTime.now()).createdby(details.getRequestedBy()).build();
+		
+		emailDetailsModel = emailDetailsDao.save(emailDetailsModel);
+		System.out.println(emailDetailsModel.getId());
+		details.setStatus("Success");
+		return emailDetailsModel.getId();
 	}
-	
+
 }
