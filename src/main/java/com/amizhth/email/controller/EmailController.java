@@ -2,6 +2,8 @@ package com.amizhth.email.controller;
 
 import java.time.LocalDateTime;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +26,7 @@ public class EmailController {
 	private EmailDetailsDao emailDetailsDao;
 
 	@PostMapping(value = "/sendMail", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public EmailDetails sendMail(@RequestBody EmailDetails details) {
+	public EmailDetails sendMail(@RequestBody EmailDetails details, HttpServletRequest request) {
 		EmailDetailsModel emailDetailsModel = new EmailDetailsModel();
 		EmailDetails emailDetails = null;
 		try {
