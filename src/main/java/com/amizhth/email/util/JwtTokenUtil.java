@@ -1,72 +1,68 @@
 package com.amizhth.email.util;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
-
 @Component
 public class JwtTokenUtil implements Serializable {
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-    public String getUsernameFromToken(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
-    }
 
-    public Date getExpirationDateFromToken(String token) {
-        return getClaimFromToken(token, Claims::getExpiration);
-    }
+	private static final long serialVersionUID = -3694200065347169867L;
 
-    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaimsFromToken(token);
-        return claimsResolver.apply(claims);
-    }
+	public boolean validatePrivilege(String jwtToken) {
+		boolean authorizedService = false;
+		String payload = getPayload(jwtToken);
+		System.out.println("payload :: " + payload);
+		JSONObject jsonPayload = new JSONObject(payload);
+		if (jsonPayload.has("servicePrivilleges")) {
+			JSONArray arrJson = jsonPayload.getJSONArray("servicePrivilleges");
+			int i;
+			for (i = 0; i < arrJson.length(); i++) {
+				if (arrJson.getString(i).equalsIgnoreCase("emailservice")) {
+					authorizedService = true;
+				}
+			}
+		}
+		return authorizedService;
+	}
 
-    private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey("Hello")
-                .parseClaimsJws(token)
-                .getBody();
-    }
+	public Boolean validateToken(String jwtToken) {
+		boolean validToken = false;
+		String payload = getPayload(jwtToken);
+		JSONObject jsonPayload = new JSONObject(payload);
+		if (jsonPayload.has("exp")) {
+			LocalDateTime currentTime =LocalDateTime.now(ZoneOffset.UTC);
+			System.out.println("currentTime :: "+currentTime);
+			
+			LocalDateTime epochStartTime = LocalDateTime.parse("1970-01-01T00:00:00");
+			System.out.println("epochStartTime :: "+epochStartTime);
+			LocalDateTime tokenExpirationTime = epochStartTime.plusSeconds(jsonPayload.getLong("exp"));
+			System.out.println("tokenExpirationTime :: "+tokenExpirationTime.atOffset(ZoneOffset.UTC));
+			if(currentTime.isBefore(tokenExpirationTime)) {
+				validToken = true;
+			}
+		}
+		return validToken;
+	}
 
-    private Boolean isTokenExpired(String token) {
-        final Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
-    }
-
-    public String generateToken(UserDetails user) {
-        return doGenerateToken(user.getUsername());
-    }
-
-    private String doGenerateToken(String subject) {
-        Claims claims = Jwts.claims().setSubject(subject);
-        claims.put("scopes", Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        logger.info("Generating Token");
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuer("http://devglan.com")
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+3600000))//1 Hour Validity
-                .signWith(SignatureAlgorithm.HS256, "Hello")
-                .compact();
-    }
-
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
-        return (
-              username.equals(userDetails.getUsername())
-                    && !isTokenExpired(token));
-    }
+	private String getPayload(String token) throws RuntimeException {
+		String[] chunks = token.split("\\.");
+		Base64.Decoder decoder = Base64.getUrlDecoder();
+		String payload = new String(decoder.decode(chunks[1]));
+		return payload;
+	}
 
 }
