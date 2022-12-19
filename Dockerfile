@@ -1,3 +1,4 @@
 FROM openjdk:8-jdk-alpine
-ADD target/emailservice-0.0.1-SNAPSHOT.jar emailservice.jar
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} emailservice.jar
 ENTRYPOINT ["java","-jar","emailservice.jar"]
