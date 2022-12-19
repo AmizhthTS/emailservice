@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 public class TenantSchemaResolver implements CurrentTenantIdentifierResolver {
 
 	
-	private String defaultTenant = "public";
+	private String defaultTenant = "emailservice";
 
 	@Override
 	public String resolveCurrentTenantIdentifier() {
